@@ -54,14 +54,24 @@ public class HTMLParser {
         Document document = Jsoup.parse(getStringFromInputStream(mInputStream));
         Elements elements = document.getElementsByClass("fact");
         for (Element element: elements) {
+            String content = null;
+            String imgUrl = null;
             Elements contents = element.getElementsByClass("content");
             if(contents != null && !contents.isEmpty()) {
                 Element cont = contents.get(0);
-
                 List<TextNode> textNodes = cont.textNodes();
                 if(textNodes != null && !textNodes.isEmpty()) {
-                    result.add(new FactItem(textNodes.get(0).toString()));
+                    content = textNodes.get(0).toString();
                 }
+            }
+            if(content != null) {
+                Elements metas = element.getElementsByClass("meta1");
+                if (metas != null && !metas.isEmpty()) {
+                    Element meta = metas.get(0);
+                    Element img = meta.child(0);
+                    imgUrl = img.attributes().get("src");
+                }
+                result.add(new FactItem(content, imgUrl));
             }
         }
         return result;

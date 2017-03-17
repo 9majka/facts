@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.facts.FactItem;
@@ -36,6 +37,11 @@ public class ListAdapter extends ArrayAdapter<FactItem> {
         if (factItem != null) {
             TextView textView = (TextView) view.findViewById(R.id.textView);
             textView.setText(Html.fromHtml(factItem.getContent()), TextView.BufferType.SPANNABLE);
+
+            if(factItem.getBitmap() != null) {
+                ImageView img= (ImageView) view.findViewById(R.id.icon);
+                img.setImageBitmap(factItem.getBitmap());
+            }
         }
 
         return view;

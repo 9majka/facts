@@ -1,8 +1,11 @@
 package com.facts;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -66,7 +69,7 @@ public class HttpModel {
         task.execute();
     }
 
-    private class FactsLoaderTask extends AsyncTask<Void, Void, FactItems> {
+    private class FactsLoaderTask extends AsyncTask<Void, FactItems, FactItems> {
         private String mUrl;
         private int mFrom;
 
@@ -76,15 +79,50 @@ public class HttpModel {
         }
 
         @Override
+        protected void onProgressUpdate(FactItems... values) {
+            super.onProgressUpdate(values);
+            if(mObserver != null) {
+                mObserver.onFactsReady(values[0]);
+            }
+        }
+
+        private void loadImages(FactItems factItems) {
+            for (FactItem factItem : factItems) {
+                Bitmap bm = null;
+                HttpURLConnection urlConnection = null;
+                try {
+                    URL aURL = new URL(factItem.getImgUrl());
+                    urlConnection = (HttpURLConnection) aURL.openConnection();
+                    urlConnection.connect();
+                    InputStream is = urlConnection.getInputStream();
+                    BufferedInputStream bis = new BufferedInputStream(is);
+                    bm = BitmapFactory.decodeStream(bis);
+                    factItem.setBitmap(bm);
+                    bis.close();
+                    is.close();
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+        }
+
+        @Override
         protected FactItems doInBackground(Void... params) {
-            return loadInternal(mUrl, mFrom);
+            FactItems facts = loadInternal(mUrl, mFrom);
+
+            publishProgress(facts);
+            loadImages(facts);
+            return facts;
         }
 
         @Override
         protected void onPostExecute(FactItems factItems) {
             super.onPostExecute(factItems);
             if(mObserver != null) {
-                mObserver.onFactsReady(factItems);
+                mObserver.onFactsUpdate(factItems);
             }
         }
     }

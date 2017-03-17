@@ -6,4 +6,5 @@ package com.facts;
 
 interface HttpModelObserver {
     void onFactsReady(FactItems items);
+    void onFactsUpdate(FactItems items);
 }
