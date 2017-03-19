@@ -1,9 +1,12 @@
-package com.facts;
+package com.facts.model;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
+
+import com.facts.FactItem;
+import com.facts.FactItems;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -38,7 +41,7 @@ public class HttpModel {
     private FactItems loadInternal(String urlString, int from) {
         FactItems items = null;
         urlString = urlString + from;
-        Log.e(TAG, "loadInternal: urlString = " + urlString);
+        Log.i(TAG, "loadInternal: urlString = " + urlString);
         HttpURLConnection urlConnection = null;
         try {
             URL url = new URL(urlString);
@@ -47,6 +50,7 @@ public class HttpModel {
             urlConnection.setUseCaches(true);
 
             InputStream is = urlConnection.getInputStream();
+            Log.i(TAG, "loadInternal: is = " + is);
             HTMLParser parser = new HTMLParser(is);
             items = parser.parse();
 
@@ -78,14 +82,6 @@ public class HttpModel {
             mFrom = from;
         }
 
-        @Override
-        protected void onProgressUpdate(FactItems... values) {
-            super.onProgressUpdate(values);
-            if(mObserver != null) {
-                mObserver.onFactsReady(values[0]);
-            }
-        }
-
         private void loadImages(FactItems factItems) {
             for (FactItem factItem : factItems) {
                 Bitmap bm = null;
@@ -113,16 +109,32 @@ public class HttpModel {
         protected FactItems doInBackground(Void... params) {
             FactItems facts = loadInternal(mUrl, mFrom);
 
-            publishProgress(facts);
-            loadImages(facts);
+            if(facts != null) {
+                publishProgress(facts);
+                loadImages(facts);
+            }
             return facts;
+        }
+
+        @Override
+        protected void onProgressUpdate(FactItems... values) {
+            super.onProgressUpdate(values);
+            Log.i(TAG, "onProgressUpdate");
+            FactsLoader.getInstance().setCurrentFactItems(values[0]);
+            if(mObserver != null) {
+                mObserver.onFactsReady(values[0]);
+            }
         }
 
         @Override
         protected void onPostExecute(FactItems factItems) {
             super.onPostExecute(factItems);
-            if(mObserver != null) {
-                mObserver.onFactsUpdate(factItems);
+            Log.i(TAG, "onPostExecute");
+            if(factItems != null) {
+                FactsLoader.getInstance().setCurrentFactItems(factItems);
+                if (mObserver != null) {
+                    mObserver.onFactsUpdate(factItems);
+                }
             }
         }
     }

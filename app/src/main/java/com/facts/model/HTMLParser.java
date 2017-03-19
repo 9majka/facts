@@ -1,7 +1,10 @@
-package com.facts;
+package com.facts.model;
 
 
 import android.util.Log;
+
+import com.facts.FactItem;
+import com.facts.FactItems;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -16,6 +19,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 public class HTMLParser {
+    private static final String TAG = "HTMLParser";
     private InputStream mInputStream;
     public HTMLParser(InputStream inputStream) {
         mInputStream = inputStream;
@@ -49,31 +53,49 @@ public class HTMLParser {
 
     }
 
+    private int parseId(Element fact) {
+        int result = Integer.parseInt(fact.attributes().get("tagid"));
+        return result;
+    }
+
+    private String parseImageUrl(Element fact) {
+        String result = null;
+        Elements metas = fact.getElementsByClass("meta1");
+        if (metas != null && !metas.isEmpty()) {
+            Element meta = metas.get(0);
+            Element img = meta.child(0);
+            result = img.attributes().get("src");
+        }
+        return result;
+    }
+
+    private String parseContent(Element fact) {
+        String result = null;
+        Elements contents = fact.getElementsByClass("content");
+        if(contents != null && !contents.isEmpty()) {
+            Element cont = contents.get(0);
+            List<TextNode> textNodes = cont.textNodes();
+            if(textNodes != null && !textNodes.isEmpty()) {
+                result = textNodes.get(0).toString();
+            }
+        }
+        return result;
+    }
+
     FactItems parse() throws IOException {
+        Log.e(TAG, "parse IN");
         FactItems result = new FactItems();
         Document document = Jsoup.parse(getStringFromInputStream(mInputStream));
         Elements elements = document.getElementsByClass("fact");
         for (Element element: elements) {
-            String content = null;
-            String imgUrl = null;
-            Elements contents = element.getElementsByClass("content");
-            if(contents != null && !contents.isEmpty()) {
-                Element cont = contents.get(0);
-                List<TextNode> textNodes = cont.textNodes();
-                if(textNodes != null && !textNodes.isEmpty()) {
-                    content = textNodes.get(0).toString();
-                }
-            }
+            String content = parseContent(element);
             if(content != null) {
-                Elements metas = element.getElementsByClass("meta1");
-                if (metas != null && !metas.isEmpty()) {
-                    Element meta = metas.get(0);
-                    Element img = meta.child(0);
-                    imgUrl = img.attributes().get("src");
-                }
-                result.add(new FactItem(content, imgUrl));
+                String imgUrl = parseImageUrl(element);
+                int id = parseId(element);
+                result.add(new FactItem(id, content, imgUrl));
             }
         }
+        Log.e(TAG, "parse OUT");
         return result;
     }
 

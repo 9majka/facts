@@ -9,7 +9,8 @@ public class FactItem {
     private String mImgUrl;
     private Bitmap mBitmap = null;
 
-    public FactItem(String content, String imgUrl) {
+    public FactItem(int id, String content, String imgUrl) {
+        mID = id;
         mContent = content;
         mImgUrl = "http://muzey-factov.ru" + imgUrl;
     }
@@ -28,5 +29,9 @@ public class FactItem {
 
     public Bitmap getBitmap() {
         return mBitmap;
+    }
+
+    public int getID() {
+        return mID;
     }
 }

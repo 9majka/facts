@@ -1,4 +1,4 @@
-package com.facts.view;
+package com.facts.ui;
 
 import android.content.Context;
 import android.text.Html;
@@ -14,12 +14,12 @@ import com.facts.R;
 
 import java.util.List;
 
-public class ListAdapter extends ArrayAdapter<FactItem> {
+public class FactsListAdapter extends ArrayAdapter<FactItem> {
 
     private LayoutInflater mLayoutInflater = null;
 
-    public ListAdapter(Context context, int resource, List<FactItem> items) {
-        super(context, resource, items);
+    public FactsListAdapter(Context context, List<FactItem> items) {
+        super(context, 0, items);
         mLayoutInflater = LayoutInflater.from(context);
     }
 
