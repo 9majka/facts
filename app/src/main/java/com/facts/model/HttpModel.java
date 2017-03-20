@@ -20,6 +20,9 @@ public class HttpModel {
     // Best topic : http://muzey-factov.ru/best/from10
     private static final String mUrlBest = "http://muzey-factov.ru/best/from";
     private static final String mUrlNew = "http://muzey-factov.ru/from";
+    private static final String DEFAULT_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) "
+                                                   + "AppleWebKit/537.36 (KHTML, like Gecko) "
+                                                   + "Chrome/52.0.2743.82 Safari/537.36";
 
     private static HttpModel sInstance = null;
     private HttpModelObserver mObserver = null;
@@ -47,6 +50,7 @@ public class HttpModel {
             URL url = new URL(urlString);
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setConnectTimeout(5000);
+            urlConnection.setRequestProperty("User-Agent", DEFAULT_USER_AGENT);
             urlConnection.setUseCaches(true);
 
             InputStream is = urlConnection.getInputStream();
@@ -89,6 +93,8 @@ public class HttpModel {
                 try {
                     URL aURL = new URL(factItem.getImgUrl());
                     urlConnection = (HttpURLConnection) aURL.openConnection();
+                    urlConnection.setRequestProperty("User-Agent", DEFAULT_USER_AGENT);
+                    urlConnection.setUseCaches(true);
                     urlConnection.connect();
                     InputStream is = urlConnection.getInputStream();
                     BufferedInputStream bis = new BufferedInputStream(is);
