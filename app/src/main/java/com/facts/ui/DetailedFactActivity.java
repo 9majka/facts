@@ -3,6 +3,10 @@ package com.facts.ui;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.view.Menu;
+import android.view.MenuItem;
+
+import com.facts.R;
 
 public class DetailedFactActivity extends SingleFragmentActivity {
     @Override

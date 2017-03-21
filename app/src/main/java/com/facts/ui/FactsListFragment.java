@@ -12,11 +12,11 @@ import android.widget.ListView;
 
 import com.facts.FactItem;
 import com.facts.FactItems;
-import com.facts.model.FactsLoader;
-import com.facts.model.HttpModel;
-import com.facts.model.HttpModelObserver;
+import com.facts.controller.NavigationController;
+import com.facts.model.FactsHolder;
+import com.facts.model.FactsLoaderObserver;
 
-public class FactsListFragment extends ListFragment implements HttpModelObserver {
+public class FactsListFragment extends ListFragment implements FactsLoaderObserver {
     private final static String TAG = "FactsListFragment";
 
     @Override
@@ -43,12 +43,11 @@ public class FactsListFragment extends ListFragment implements HttpModelObserver
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate\n");
         super.onCreate(savedInstanceState);
-        HttpModel.getInstance().setObserver(this);
-        FactItems items = FactsLoader.getInstance().getCurrentFactItems();
+        FactItems items = FactsHolder.getInstance().getCurrentFactItems();
         if(items != null) {
             updateList(items);
         } else {
-            HttpModel.getInstance().loadNew(0);
+            NavigationController.getInstance().restore();
         }
     }
 

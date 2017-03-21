@@ -1,9 +1,13 @@
 package com.facts.ui;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -11,7 +15,7 @@ import android.widget.TextView;
 
 import com.facts.FactItem;
 import com.facts.R;
-import com.facts.model.FactsLoader;
+import com.facts.model.FactsHolder;
 
 
 public class DetailedFactFragment extends Fragment {
@@ -31,7 +35,28 @@ public class DetailedFactFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         int factID = (int) getArguments().getSerializable(ARG_FACT_ID);
-        mFact = FactsLoader.getInstance().getFactById(factID);
+        mFact = FactsHolder.getInstance().getFactById(factID);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.detailed_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.mShare:
+                Intent i = new Intent(android.content.Intent.ACTION_SEND);
+                i.setType("text/plain");
+                i.putExtra(android.content.Intent.EXTRA_TEXT, mFact.getContent());
+                startActivity(Intent.createChooser(i, "Share fact"));
+                break;
+            case R.id.mSave:
+                break;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -46,6 +71,7 @@ public class DetailedFactFragment extends Fragment {
                 img.setImageBitmap(mFact.getBitmap());
             }
         }
+        setHasOptionsMenu(true);
         return view;
     }
 }
