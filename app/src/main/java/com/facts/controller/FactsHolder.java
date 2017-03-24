@@ -1,4 +1,4 @@
-package com.facts.model;
+package com.facts.controller;
 
 import com.facts.FactItem;
 import com.facts.FactItems;

@@ -18,7 +18,6 @@ import android.widget.ListView;
 
 import com.facts.R;
 import com.facts.controller.NavigationController;
-import com.facts.model.FactsLoader;
 
 public class FactsListActivity extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
@@ -43,7 +42,7 @@ public class FactsListActivity extends AppCompatActivity {
                     .add(R.id.fragmentContainer, fragment)
                     .commit();
         }
-        FactsLoader.getInstance().setObserver((FactsListFragment)fragment);
+
         initDrawerNavigation();
         NavigationController.getInstance().updateContext(this);
     }

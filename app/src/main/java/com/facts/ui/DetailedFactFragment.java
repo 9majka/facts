@@ -15,7 +15,8 @@ import android.widget.TextView;
 
 import com.facts.FactItem;
 import com.facts.R;
-import com.facts.model.FactsHolder;
+import com.facts.controller.FactsHolder;
+import com.facts.model.SQLiteFactsLoader;
 
 
 public class DetailedFactFragment extends Fragment {
@@ -54,6 +55,7 @@ public class DetailedFactFragment extends Fragment {
                 startActivity(Intent.createChooser(i, "Share fact"));
                 break;
             case R.id.mSave:
+                SQLiteFactsLoader.getInstance(getActivity()).saveFact(mFact);
                 break;
         }
         return super.onOptionsItemSelected(item);

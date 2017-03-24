@@ -14,8 +14,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class FactsLoader {
-    private static final String TAG = "FactsLoader";
+public class HttpFactsLoader implements IFactsLoader {
+    private static final String TAG = "HttpFactsLoader";
 
     // Best topic : http://muzey-factov.ru/best/from10
     private static final String mUrlBest = "http://muzey-factov.ru/best/from";
@@ -24,20 +24,20 @@ public class FactsLoader {
                                                    + "AppleWebKit/537.36 (KHTML, like Gecko) "
                                                    + "Chrome/52.0.2743.82 Safari/537.36";
 
-    private static FactsLoader sInstance = null;
-    private FactsLoaderObserver mObserver = null;
+    private static HttpFactsLoader sInstance = null;
+    private FactsLoaderCallbacks mObserver = null;
 
-    public static FactsLoader getInstance() {
+    public static HttpFactsLoader getInstance() {
         if (sInstance == null) {
-            sInstance = new FactsLoader();
+            sInstance = new HttpFactsLoader();
         }
         return sInstance;
     }
 
-    private FactsLoader() {
+    private HttpFactsLoader() {
     }
 
-    public void setObserver(FactsLoaderObserver observer) {
+    public void setObserver(FactsLoaderCallbacks observer) {
         mObserver = observer;
     }
 
@@ -118,6 +118,8 @@ public class FactsLoader {
             if(facts != null) {
                 publishProgress(facts);
                 loadImages(facts);
+            } else {
+                publishProgress(facts);
             }
             return facts;
         }
@@ -125,21 +127,23 @@ public class FactsLoader {
         @Override
         protected void onProgressUpdate(FactItems... values) {
             super.onProgressUpdate(values);
-            Log.i(TAG, "onProgressUpdate");
-            FactsHolder.getInstance().setCurrentFactItems(values[0]);
+            Log.i(TAG, "onProgressUpdate " + mObserver);
             if(mObserver != null) {
-                mObserver.onFactsReady(values[0]);
+                if(values != null) {
+                    mObserver.onFactsCreated(values[0]);
+                } else {
+                    mObserver.onError();
+                }
             }
         }
 
         @Override
         protected void onPostExecute(FactItems factItems) {
             super.onPostExecute(factItems);
-            Log.i(TAG, "onPostExecute");
+            Log.i(TAG, "onPostExecute" + mObserver);
             if(factItems != null) {
-                FactsHolder.getInstance().setCurrentFactItems(factItems);
                 if (mObserver != null) {
-                    mObserver.onFactsUpdate(factItems);
+                    mObserver.onFactsUpdated(factItems);
                 }
             }
         }

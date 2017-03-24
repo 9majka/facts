@@ -13,10 +13,10 @@ import android.widget.ListView;
 import com.facts.FactItem;
 import com.facts.FactItems;
 import com.facts.controller.NavigationController;
-import com.facts.model.FactsHolder;
-import com.facts.model.FactsLoaderObserver;
+import com.facts.controller.FactsHolder;
+import com.facts.model.FactsLoaderCallbacks;
 
-public class FactsListFragment extends ListFragment implements FactsLoaderObserver {
+public class FactsListFragment extends ListFragment implements FactsLoaderCallbacks {
     private final static String TAG = "FactsListFragment";
 
     @Override
@@ -43,12 +43,19 @@ public class FactsListFragment extends ListFragment implements FactsLoaderObserv
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "onCreate\n");
         super.onCreate(savedInstanceState);
+        NavigationController.getInstance().addListener(this);
         FactItems items = FactsHolder.getInstance().getCurrentFactItems();
         if(items != null) {
             updateList(items);
         } else {
             NavigationController.getInstance().restore();
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        NavigationController.getInstance().removeListener(this);
     }
 
     @Override
@@ -70,11 +77,6 @@ public class FactsListFragment extends ListFragment implements FactsLoaderObserv
     }
 
     @Override
-    public void onFactsReady(FactItems items) {
-        updateList(items);
-    }
-
-    @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
         super.onListItemClick(l, v, position, id);
 
@@ -85,8 +87,20 @@ public class FactsListFragment extends ListFragment implements FactsLoaderObserv
     }
 
     @Override
-    public void onFactsUpdate(FactItems items) {
+    public void onFactsCreated(FactItems items) {
+        Log.i(TAG, "onFactsCreated\n");
+        updateList(items);
+    }
+
+    @Override
+    public void onFactsUpdated(FactItems items) {
+        Log.i(TAG, "onFactsUpdated\n");
         FactsListAdapter listAdapter = (FactsListAdapter)getListAdapter();
         listAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onError() {
+        Log.e(TAG, "onError ");
     }
 }

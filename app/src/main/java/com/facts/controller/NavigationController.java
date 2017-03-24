@@ -2,13 +2,20 @@ package com.facts.controller;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
-import com.facts.model.FactsLoader;
+import com.facts.FactItems;
+import com.facts.model.FactsLoaderCallbacks;
+import com.facts.model.HttpFactsLoader;
+import com.facts.model.SQLiteFactsLoader;
 
 import java.lang.ref.WeakReference;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
-public class NavigationController implements INavigationControl {
+public class NavigationController implements FactsLoaderCallbacks {
+    private static final String TAG = "NavigationController";
     private int mCounterByDate = 0;
     private int mCounterByTop = 0;
     private int mCounterRand = 0;
@@ -18,12 +25,17 @@ public class NavigationController implements INavigationControl {
 
     private WeakReference<Context> mContextPtr = null;
     private ViewType mViewType = ViewType.DATE;
+    private Set<FactsLoaderCallbacks> mCallbacks = new HashSet<>();
 
     public static NavigationController getInstance() {
         if(sInstance == null) {
             sInstance = new NavigationController();
         }
         return sInstance;
+    }
+
+    private NavigationController() {
+        HttpFactsLoader.getInstance().setObserver(this);
     }
 
     public void updateContext(Context ctx) {
@@ -33,6 +45,14 @@ public class NavigationController implements INavigationControl {
     public void restore() {
         restoreSettings();
         doAction(0);
+    }
+
+    public void addListener(FactsLoaderCallbacks callbacks) {
+        mCallbacks.add(callbacks);
+    }
+
+    public void removeListener(FactsLoaderCallbacks callbacks) {
+        mCallbacks.remove(callbacks);
     }
 
     public void save() {
@@ -65,6 +85,9 @@ public class NavigationController implements INavigationControl {
     public void showOffline() {
         //mViewType = Type.OFFLINE;
         // TODO
+        mViewType = ViewType.OFFLINE;
+        SQLiteFactsLoader.getInstance(mContextPtr.get()).setObserver(this);
+        doAction(0);
     }
 
     public void onPrevClicked() {
@@ -80,24 +103,26 @@ public class NavigationController implements INavigationControl {
             case DATE:
                 mCounterByDate = mCounterByDate + shift;
                 if(mCounterByDate < 0) mCounterByDate = 0;
-                FactsLoader.getInstance().loadNew(mCounterByDate);
+                HttpFactsLoader.getInstance().loadNew(mCounterByDate);
                 break;
             case TOP:
                 mCounterByTop = mCounterByTop + shift;
                 if(mCounterByTop < 0) mCounterByTop = 0;
-                FactsLoader.getInstance().loadBest(mCounterByTop);
+                HttpFactsLoader.getInstance().loadBest(mCounterByTop);
                 break;
             case RAND:
                 mCounterRand = mCounterRand + shift;
                 if(mCounterRand < 0) mCounterRand = 0;
-                FactsLoader.getInstance().loadNew(mCounterRand);
+                HttpFactsLoader.getInstance().loadNew(mCounterRand);
                 break;
             case LATEST:
                 mCounterLatest = mCounterLatest + shift;
                 if(mCounterLatest < 0) mCounterLatest = 0;
-                FactsLoader.getInstance().loadNew(mCounterLatest);
+                HttpFactsLoader.getInstance().loadNew(mCounterLatest);
                 break;
             case OFFLINE:
+                SQLiteFactsLoader.getInstance(mContextPtr.get()).setObserver(this);
+                SQLiteFactsLoader.getInstance(mContextPtr.get()).loadNew(0);
                 break;
         }
     }
@@ -124,6 +149,32 @@ public class NavigationController implements INavigationControl {
         editor.putInt("counterRand", mCounterRand);
         // Commit the edits!
         editor.apply();
+    }
+
+    @Override
+    public void onFactsCreated(FactItems items) {
+        Log.i(TAG, "onFactsCreated ");
+        FactsHolder.getInstance().setCurrentFactItems(items);
+        for (FactsLoaderCallbacks callback : mCallbacks) {
+            callback.onFactsCreated(items);
+        }
+    }
+
+    @Override
+    public void onFactsUpdated(FactItems items) {
+        FactsHolder.getInstance().setCurrentFactItems(items);
+        Log.i(TAG, "onFactsUpdated ");
+        for (FactsLoaderCallbacks callback : mCallbacks) {
+            callback.onFactsUpdated(items);
+        }
+    }
+
+    @Override
+    public void onError() {
+        Log.e(TAG, "onError ");
+        for (FactsLoaderCallbacks callback : mCallbacks) {
+            callback.onError();
+        }
     }
 
     private enum ViewType {
