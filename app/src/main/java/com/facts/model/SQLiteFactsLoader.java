@@ -74,20 +74,29 @@ public class SQLiteFactsLoader implements IFactsLoader {
             wrapper.close();
         }
 
-        //Test Facts
-        if(factItems.size() == 0) {
-            testData(factItems);
-        }
-///////////
-
         if (mObserver != null) {
             mObserver.onFactsCreated(factItems);
         }
     }
 
+    public void loadOffline(int from) {
+        FactItems factItems = new FactItems();
+        testData(factItems);
+        if (mObserver != null) {
+            mObserver.onFactsCreated(factItems);
+        }
+    }
+
+    static boolean swap = true;
     private void testData(FactItems items) {
         for (int i = 0; i < 25; i++) {
-            items.add(new FactItem(i, mContext.getResources().getString(R.string.Lorem), null));
+            if(swap) {
+                items.add(new FactItem(i, mContext.getResources().getString(R.string.Lorem), null));
+            }
+            else {
+                items.add(new FactItem(i, mContext.getResources().getString(R.string.Lorem1), null));
+            }
+            swap = !swap;
         }
     }
 

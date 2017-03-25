@@ -83,9 +83,13 @@ public class NavigationController implements FactsLoaderCallbacks {
     }
 
     public void showOffline() {
-        //mViewType = Type.OFFLINE;
-        // TODO
         mViewType = ViewType.OFFLINE;
+        SQLiteFactsLoader.getInstance(mContextPtr.get()).setObserver(this);
+        doAction(0);
+    }
+
+    public void showFavorites() {
+        mViewType = ViewType.FAVORITES;
         SQLiteFactsLoader.getInstance(mContextPtr.get()).setObserver(this);
         doAction(0);
     }
@@ -121,6 +125,10 @@ public class NavigationController implements FactsLoaderCallbacks {
                 HttpFactsLoader.getInstance().loadNew(mCounterLatest);
                 break;
             case OFFLINE:
+                SQLiteFactsLoader.getInstance(mContextPtr.get()).setObserver(this);
+                SQLiteFactsLoader.getInstance(mContextPtr.get()).loadOffline(0);
+                break;
+            case FAVORITES:
                 SQLiteFactsLoader.getInstance(mContextPtr.get()).setObserver(this);
                 SQLiteFactsLoader.getInstance(mContextPtr.get()).loadNew(0);
                 break;
@@ -182,7 +190,8 @@ public class NavigationController implements FactsLoaderCallbacks {
         TOP(1),
         RAND(2),
         LATEST(3),
-        OFFLINE(4);
+        OFFLINE(4),
+        FAVORITES(4);
 
         public static final ViewType values[] = values();
         int mtype;

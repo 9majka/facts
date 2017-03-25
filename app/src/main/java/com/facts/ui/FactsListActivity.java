@@ -32,7 +32,7 @@ public class FactsListActivity extends AppCompatActivity {
     private Toolbar mToolbar;
 
     protected Fragment createFragment() {
-        return new FactsListFragment();
+        return new FactsListFragmentNew();
     }
 
     @Override
@@ -94,7 +94,7 @@ public class FactsListActivity extends AppCompatActivity {
                                     NavigationController.getInstance().showOffline();
                                     break;
                                 case 5:
-                                    NavigationController.getInstance().showOffline();
+                                    NavigationController.getInstance().showFavorites();
                                     break;
                                 default:
                                     break;
