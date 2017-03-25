@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,11 +19,18 @@ import android.widget.ListView;
 
 import com.facts.R;
 import com.facts.controller.NavigationController;
+import com.mikepenz.iconics.IconicsDrawable;
+import com.mikepenz.iconics.typeface.FontAwesome;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.accountswitcher.AccountHeader;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 
 public class FactsListActivity extends AppCompatActivity {
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
-    private ActionBarDrawerToggle mDrawerToggle;
+    private Toolbar mToolbar;
+
     protected Fragment createFragment() {
         return new FactsListFragment();
     }
@@ -30,8 +38,11 @@ public class FactsListActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_fragment_list);
+        setContentView(R.layout.activity_fragment_list_new);
+        mToolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(mToolbar);
 
+        initDrawer(savedInstanceState);
         initBottomNavigation();
 
         FragmentManager fm = getFragmentManager();
@@ -43,8 +54,55 @@ public class FactsListActivity extends AppCompatActivity {
                     .commit();
         }
 
-        initDrawerNavigation();
         NavigationController.getInstance().updateContext(this);
+    }
+
+    private void initDrawer(Bundle savedInstanceState) {
+        new Drawer()
+                .withActivity(this)
+                .withToolbar(mToolbar)
+                .withActionBarDrawerToggle(true)
+                .withHeader(R.layout.drawer_header)
+                .addDrawerItems(
+                        new PrimaryDrawerItem().withName("All facts").withIcon(FontAwesome.Icon.faw_home).withIdentifier(0),
+                        new PrimaryDrawerItem().withName("Top facts").withIcon(FontAwesome.Icon.faw_arrow_up).withIdentifier(1),
+                        new PrimaryDrawerItem().withName("Random facts").withIcon(FontAwesome.Icon.faw_random).withIdentifier(2),
+                        new PrimaryDrawerItem().withName("New facts").withIcon(FontAwesome.Icon.faw_clock_o).withIdentifier(3),
+                        new PrimaryDrawerItem().withName("Offline").withIcon(FontAwesome.Icon.faw_cloud_download).withIdentifier(4),
+                        new PrimaryDrawerItem().withName("Favorites").withIcon(FontAwesome.Icon.faw_star).withIdentifier(5),
+                        new SectionDrawerItem().withName("Settings"),
+                        new SecondaryDrawerItem().withName("Settings").withIcon(FontAwesome.Icon.faw_cog)
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id, IDrawerItem drawerItem) {
+                        if (drawerItem != null) {;
+                            switch(drawerItem.getIdentifier()) {
+                                case 0:
+                                    NavigationController.getInstance().sortByDate();
+                                    break;
+                                case 1:
+                                    NavigationController.getInstance().sortByPopularity();
+                                    break;
+                                case 2:
+                                    NavigationController.getInstance().sortByRandom();
+                                    break;
+                                case 3:
+                                    NavigationController.getInstance().showLatest();
+                                    break;
+                                case 4:
+                                    NavigationController.getInstance().showOffline();
+                                    break;
+                                case 5:
+                                    NavigationController.getInstance().showOffline();
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                })
+                .build();
     }
 
     @Override
@@ -54,30 +112,6 @@ public class FactsListActivity extends AppCompatActivity {
         NavigationController.getInstance().save();
     }
 
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        mDrawerToggle.syncState();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Pass the event to ActionBarDrawerToggle, if it returns
-        // true, then it has handled the app icon touch event
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        // Handle your other action bar items...
-
-        return super.onOptionsItemSelected(item);
-    }
 
     private void initBottomNavigation() {
         BottomNavigationView bottomNavigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
@@ -97,74 +131,6 @@ public class FactsListActivity extends AppCompatActivity {
                         break;
                 }
                 return true;
-            }
-        });
-    }
-
-    private void initDrawerNavigation() {
-        String[] list = new String[] {
-                "Show by Date",
-                "Show by Popularity",
-                "Show Random",
-                "Show Latest",
-                "Show Offline"
-        };
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-
-        // Set the adapter for the list view
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list));
-        mDrawerToggle = new ActionBarDrawerToggle(
-                this,                  /* host Activity */
-                mDrawerLayout,         /* DrawerLayout object */
-                R.string.action_best,  /* "open drawer" description */
-                R.string.action_best  /* "close drawer" description */
-        ) {
-
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                getSupportActionBar().setTitle(R.string.app_name);
-            }
-
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                getSupportActionBar().setTitle("Navigation");
-            }
-
-        };
-
-        // Set the drawer toggle as the DrawerListener
-        mDrawerLayout.addDrawerListener(mDrawerToggle);
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                switch(position) {
-                    //TODO
-                    case 0:
-                        NavigationController.getInstance().sortByDate();
-                        break;
-                    case 1:
-                        NavigationController.getInstance().sortByPopularity();
-                        break;
-                    case 2:
-                        NavigationController.getInstance().sortByRandom();
-                        break;
-                    case 3:
-                        NavigationController.getInstance().showLatest();
-                        break;
-                    case 4:
-                        NavigationController.getInstance().showOffline();
-                        break;
-                    default:
-                        break;
-                }
-                mDrawerList.setItemChecked(position, true);
-                mDrawerLayout.closeDrawer(mDrawerList);
             }
         });
     }

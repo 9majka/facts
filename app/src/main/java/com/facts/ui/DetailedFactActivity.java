@@ -20,4 +20,5 @@ public class DetailedFactActivity extends SingleFragmentActivity {
         intent.putExtra(DetailedFactFragment.ARG_FACT_ID, factId);
         return intent;
     }
+
 }

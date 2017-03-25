@@ -23,6 +23,7 @@ public class HttpFactsLoader implements IFactsLoader {
     private static final String DEFAULT_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) "
                                                    + "AppleWebKit/537.36 (KHTML, like Gecko) "
                                                    + "Chrome/52.0.2743.82 Safari/537.36";
+    private final int TIMEOUT = 10000;
 
     private static HttpFactsLoader sInstance = null;
     private FactsLoaderCallbacks mObserver = null;
@@ -49,7 +50,8 @@ public class HttpFactsLoader implements IFactsLoader {
         try {
             URL url = new URL(urlString);
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setConnectTimeout(5000);
+            urlConnection.setConnectTimeout(TIMEOUT);
+            urlConnection.setReadTimeout(TIMEOUT);
             urlConnection.setRequestProperty("User-Agent", DEFAULT_USER_AGENT);
             urlConnection.setUseCaches(true);
 
@@ -95,6 +97,8 @@ public class HttpFactsLoader implements IFactsLoader {
                     urlConnection = (HttpURLConnection) aURL.openConnection();
                     urlConnection.setRequestProperty("User-Agent", DEFAULT_USER_AGENT);
                     urlConnection.setUseCaches(true);
+                    urlConnection.setConnectTimeout(TIMEOUT);
+                    urlConnection.setReadTimeout(TIMEOUT);
                     urlConnection.connect();
                     InputStream is = urlConnection.getInputStream();
                     BufferedInputStream bis = new BufferedInputStream(is);
@@ -118,19 +122,22 @@ public class HttpFactsLoader implements IFactsLoader {
             if(facts != null) {
                 publishProgress(facts);
                 loadImages(facts);
-            } else {
-                publishProgress(facts);
             }
+
             return facts;
         }
 
         @Override
         protected void onProgressUpdate(FactItems... values) {
             super.onProgressUpdate(values);
+            FactItems items = null;
+            if(values != null) {
+                items = values[0];
+            }
             Log.i(TAG, "onProgressUpdate " + mObserver);
             if(mObserver != null) {
-                if(values != null) {
-                    mObserver.onFactsCreated(values[0]);
+                if(items != null) {
+                    mObserver.onFactsCreated(items);
                 } else {
                     mObserver.onError();
                 }
@@ -141,9 +148,11 @@ public class HttpFactsLoader implements IFactsLoader {
         protected void onPostExecute(FactItems factItems) {
             super.onPostExecute(factItems);
             Log.i(TAG, "onPostExecute" + mObserver);
-            if(factItems != null) {
-                if (mObserver != null) {
+            if (mObserver != null) {
+                if (factItems != null) {
                     mObserver.onFactsUpdated(factItems);
+                } else {
+                     mObserver.onError();
                 }
             }
         }

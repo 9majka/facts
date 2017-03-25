@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.facts.FactItems;
+import com.facts.R;
 import com.facts.database.FactCursorWrapper;
 import com.facts.database.FactsDbSchema.FactsTable;
 
@@ -73,8 +74,21 @@ public class SQLiteFactsLoader implements IFactsLoader {
             wrapper.close();
         }
 
+        //Test Facts
+        if(factItems.size() == 0) {
+            testData(factItems);
+        }
+///////////
+
         if (mObserver != null) {
             mObserver.onFactsCreated(factItems);
         }
     }
+
+    private void testData(FactItems items) {
+        for (int i = 0; i < 25; i++) {
+            items.add(new FactItem(i, mContext.getResources().getString(R.string.Lorem), null));
+        }
+    }
+
 }

@@ -153,7 +153,7 @@ public class NavigationController implements FactsLoaderCallbacks {
 
     @Override
     public void onFactsCreated(FactItems items) {
-        Log.i(TAG, "onFactsCreated ");
+        Log.i(TAG, "onFactsCreated " + items.size());
         FactsHolder.getInstance().setCurrentFactItems(items);
         for (FactsLoaderCallbacks callback : mCallbacks) {
             callback.onFactsCreated(items);
@@ -163,7 +163,7 @@ public class NavigationController implements FactsLoaderCallbacks {
     @Override
     public void onFactsUpdated(FactItems items) {
         FactsHolder.getInstance().setCurrentFactItems(items);
-        Log.i(TAG, "onFactsUpdated ");
+        Log.i(TAG, "onFactsUpdated " + items.size());
         for (FactsLoaderCallbacks callback : mCallbacks) {
             callback.onFactsUpdated(items);
         }

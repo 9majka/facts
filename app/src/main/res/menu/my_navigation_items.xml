@@ -5,13 +5,13 @@
         android:id="@+id/action_prev"
         android:title="@string/action_prev"
         android:enabled="true"
-        android:icon="@android:drawable/ic_media_previous">
+        android:icon="@mipmap/nav_prev">
     </item>
     <item
         android:id="@+id/action_next"
         android:title="@string/action_next"
         android:enabled="true"
-        android:icon="@android:drawable/ic_media_next">
+        android:icon="@mipmap/nav_next">
     </item>
 
 </menu>
