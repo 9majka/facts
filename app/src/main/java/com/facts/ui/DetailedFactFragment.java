@@ -16,16 +16,21 @@ import android.widget.TextView;
 import com.facts.FactItem;
 import com.facts.R;
 import com.facts.controller.FactsHolder;
-import com.facts.model.SQLiteFactsLoader;
+import com.facts.database.SQLiteFactsLoader;
 
 
 public class DetailedFactFragment extends Fragment {
     public static final String ARG_FACT_ID = "com.facts.ui.fact_id";
-    private FactItem mFact = null;
+    public static final String ARG_FACT_POS = "com.facts.ui.fact_list_position";
+    public static final String ARG_FACT_MODE = "com.facts.ui.fact_mode";
 
-    public static Fragment newInstance(int id) {
+    private FactItem mFact = null;
+    private int mViewMode;
+
+    public static Fragment newInstance(int id, int viewMode) {
         Bundle args = new Bundle();
         args.putSerializable(ARG_FACT_ID, id);
+        args.putSerializable(ARG_FACT_MODE, viewMode);
         DetailedFactFragment fragment = new DetailedFactFragment();
         fragment.setArguments(args);
         return fragment;
@@ -36,6 +41,7 @@ public class DetailedFactFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         int factID = (int) getArguments().getSerializable(ARG_FACT_ID);
+        mViewMode = (int) getArguments().getSerializable(ARG_FACT_MODE);
         mFact = FactsHolder.getInstance().getFactById(factID);
     }
 
@@ -43,11 +49,27 @@ public class DetailedFactFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.detailed_menu, menu);
+        if(mViewMode == 0) {
+            MenuItem item = menu.findItem(R.id.mDelete);
+            item.setVisible(false);
+        } else {
+            MenuItem item = menu.findItem(R.id.mSave);
+            item.setVisible(false);
+        }
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                // back button
+
+                Intent resultIntent = new Intent();
+                getActivity().setResult(1, resultIntent);
+                getActivity().finish();
+                return true;
+
             case R.id.mShare:
                 Intent i = new Intent(android.content.Intent.ACTION_SEND);
                 i.setType("text/plain");
@@ -56,6 +78,9 @@ public class DetailedFactFragment extends Fragment {
                 break;
             case R.id.mSave:
                 SQLiteFactsLoader.getInstance(getActivity()).saveFact(mFact);
+                break;
+            case R.id.mDelete:
+                SQLiteFactsLoader.getInstance(getActivity()).deleteFact(mFact);
                 break;
         }
         return super.onOptionsItemSelected(item);

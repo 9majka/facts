@@ -7,6 +7,7 @@ public class FactsDbSchema {
         public static final class Cols {
             public static final String UUID = "uuid";
             public static final String TEXT = "text";
+            public static final String IMAGE_DATA = "img_data";
         }
     }
 }

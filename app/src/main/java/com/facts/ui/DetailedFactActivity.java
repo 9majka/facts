@@ -12,12 +12,16 @@ public class DetailedFactActivity extends SingleFragmentActivity {
     @Override
     protected Fragment createFragment() {
         int factId = getIntent().getIntExtra(DetailedFactFragment.ARG_FACT_ID, 0);
-        return DetailedFactFragment.newInstance(factId);
+        int viewMode = getIntent().getIntExtra(DetailedFactFragment.ARG_FACT_MODE, 0);
+        return DetailedFactFragment.newInstance(factId, viewMode);
     }
 
-    public static Intent newIntent(Context packageContext, int factId) {
+    public static Intent newIntent(Context packageContext, int factId, int position, int mode) {
         Intent intent = new Intent(packageContext, DetailedFactActivity.class);
         intent.putExtra(DetailedFactFragment.ARG_FACT_ID, factId);
+        intent.putExtra(DetailedFactFragment.ARG_FACT_POS, position);
+        intent.putExtra(DetailedFactFragment.ARG_FACT_MODE, mode);
+
         return intent;
     }
 

@@ -9,7 +9,7 @@
         android:paddingTop="10dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@mipmap/icon1"
+        android:src="@mipmap/default_icon"
         android:layout_weight="0.44" />
 
     <TextView

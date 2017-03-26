@@ -2,11 +2,8 @@ package com.facts.ui;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -14,15 +11,11 @@ import android.view.View;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
 import com.facts.R;
 import com.facts.controller.NavigationController;
-import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.iconics.typeface.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
-import com.mikepenz.materialdrawer.accountswitcher.AccountHeader;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SectionDrawerItem;
@@ -32,7 +25,7 @@ public class FactsListActivity extends AppCompatActivity {
     private Toolbar mToolbar;
 
     protected Fragment createFragment() {
-        return new FactsListFragmentNew();
+        return new FactsListFragment();
     }
 
     @Override
@@ -76,7 +69,7 @@ public class FactsListActivity extends AppCompatActivity {
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id, IDrawerItem drawerItem) {
-                        if (drawerItem != null) {;
+                        if (drawerItem != null) {
                             switch(drawerItem.getIdentifier()) {
                                 case 0:
                                     NavigationController.getInstance().sortByDate();

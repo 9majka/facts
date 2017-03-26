@@ -7,7 +7,7 @@ import android.util.Log;
 import com.facts.FactItems;
 import com.facts.model.FactsLoaderCallbacks;
 import com.facts.model.HttpFactsLoader;
-import com.facts.model.SQLiteFactsLoader;
+import com.facts.database.SQLiteFactsLoader;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
@@ -102,6 +102,10 @@ public class NavigationController implements FactsLoaderCallbacks {
         doAction(10);
     }
 
+    public boolean isOffline() {
+        return mViewType == ViewType.FAVORITES || mViewType == ViewType.OFFLINE;
+    }
+
     private void doAction(int shift) {
         switch (mViewType) {
             case DATE:
@@ -191,7 +195,7 @@ public class NavigationController implements FactsLoaderCallbacks {
         RAND(2),
         LATEST(3),
         OFFLINE(4),
-        FAVORITES(4);
+        FAVORITES(5);
 
         public static final ViewType values[] = values();
         int mtype;
